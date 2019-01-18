@@ -1,4 +1,4 @@
-package com.xlab.ice.boilerplatecodegen;
+package com.alexeyanufriev.boilerplatecodegen;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.SOURCE)
-public @interface Getter {
+public @interface Accessor {
 }
