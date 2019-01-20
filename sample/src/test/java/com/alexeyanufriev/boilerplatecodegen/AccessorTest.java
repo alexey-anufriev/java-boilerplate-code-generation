@@ -1,10 +1,9 @@
 package com.alexeyanufriev.boilerplatecodegen;
 
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class GetterTest {
+public class AccessorTest {
 
     @Test
     public void test() {

@@ -13,25 +13,21 @@ import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
-import javax.tools.Diagnostic;
+import java.util.HashSet;
 import java.util.Set;
 
-@SupportedAnnotationTypes(value = "com.alexeyanufriev.boilerplatecodegen.Accessor")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 public class AccessorAnnotationProcessor extends AbstractProcessor {
 
     private JavacProcessingEnvironment processingEnvironment;
     private TreeMaker treeMaker;
-    private Messager messager;
     private Context context;
     private Trees trees;
 
@@ -42,7 +38,6 @@ public class AccessorAnnotationProcessor extends AbstractProcessor {
         processingEnvironment = (JavacProcessingEnvironment) processingEnv;
         context = processingEnvironment.getContext();
         treeMaker = TreeMaker.instance(context);
-        messager = processingEnv.getMessager();
         trees = Trees.instance(processingEnv);
     }
 
@@ -75,16 +70,13 @@ public class AccessorAnnotationProcessor extends AbstractProcessor {
                             JCTree.JCExpression defaultValue = null;
 
                             JCTree.JCMethodDecl getterMethod = treeMaker.MethodDef(
-                                    treeMaker.Modifiers(Flags.PUBLIC, List.<JCTree.JCAnnotation>nil()),
+                                    treeMaker.Modifiers(Flags.PUBLIC, List.nil()),
                                     methodName, returnType, generics, parameters, exceptions, methodBody, defaultValue);
 
                             TypeElement type = (TypeElement) field.getEnclosingElement();
                             ClassTree classTree = trees.getTree(type);
                             JCTree.JCClassDecl classDeclaration = (JCTree.JCClassDecl) classTree;
                             classDeclaration.defs = classDeclaration.defs.append(getterMethod);
-
-                            log(String.format("Generated accessor for %s in class %s",
-                                    fieldName.toString(), classDeclaration.name.toString()));
                         }
                     }
                 }
@@ -95,8 +87,11 @@ public class AccessorAnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
-    private void log(String message) {
-        messager.printMessage(Diagnostic.Kind.NOTE, message);
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        return new HashSet<>(1) {{
+            add(Accessor.class.getCanonicalName());
+        }};
     }
 
     private static Name createGetterMethodName(Context context, Name name) {
